@@ -7,13 +7,11 @@ var userSchema = new mongoose.Schema({
     firstName:{
         type:String,
         required:true,
-        unique:true,
         index:true,
     },
     lastName:{
         type:String,
         required:true,
-        unique:true,
         index:true,
     },
     email:{
@@ -39,8 +37,22 @@ var userSchema = new mongoose.Schema({
     role: {
         type: String,
         default:"user"
-    }
-});
+    },
+    isBlocked: {
+        type: Boolean,
+        default: false
+    },
+    cart: {
+        type: Array,
+        default: [],
+    },
+    address: [{type: mongoose.Schema.Types.ObjectId, ref: "Address"}],
+    wishlist: [{type: mongoose.Schema.Types.ObjectId, ref: "Product"}],
+    },
+    {
+        timestamps: true,
+    },    
+);
 
 // encrypting password
 userSchema.pre('save', async function(next) {
