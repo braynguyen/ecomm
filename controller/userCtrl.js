@@ -41,11 +41,26 @@ const loginUserCtrl = asyncHandler(async( req, res ) => {
 // Get all users
 const getAllUsers = asyncHandler(async (req, res) => {
     try {
-        const getUsers = await User.find({});
+        const getUsers = await User.find();
         res.json(getUsers);
     } catch (err) {
         throw new Error(err);
     }
 })
 
-module.exports = {createUser, loginUserCtrl, getAllUsers};
+
+// Get a single user
+const getaUser = asyncHandler(async (req, res) => {
+    // console.log(req.params)
+    const { id } = req.params;
+    try {
+        const getaUser = await User.findById(id);
+        res.json({
+            getaUser,
+        })
+    } catch (err) {
+        throw new Error(err);
+    }
+})
+
+module.exports = {createUser, loginUserCtrl, getAllUsers, getaUser};
