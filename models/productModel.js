@@ -29,7 +29,9 @@ var productSchema = new mongoose.Schema({
         type: String,
         enum: ['Gucci', 'Prada', 'Dior']
     },
-    quantity: Number,
+    quantity: { //NOT NEEDED
+        type:Number, 
+        required:true},
     sold: { //NOT NEEDED
         type:Number,
         default: 0,
