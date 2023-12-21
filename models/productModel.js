@@ -22,12 +22,14 @@ var productSchema = new mongoose.Schema({
         required:true,
     },
     category: {
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"Category",
+        type: String,
+        // ref:"Category",
+        required: true,
     },
     brand: {
         type: String,
-        enum: ['Gucci', 'Prada', 'Dior']
+        // enum: ['Gucci', 'Prada', 'Dior']
+        required: true
     },
     quantity: { //NOT NEEDED
         type:Number, 
@@ -35,13 +37,15 @@ var productSchema = new mongoose.Schema({
     sold: { //NOT NEEDED
         type:Number,
         default: 0,
+        select: false, //hidden from user
     },
     images: {
         type: Array,
     },
     color: {
         type: String,
-        enum: ['Black', 'Brown', 'Red']
+        // enum: ['Black', 'Brown', 'Red']
+        required: true
     },
     ratings: { //NOT NEEDED MAYBE ON USER?
         star: Number,
