@@ -107,6 +107,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
     }
 });
 
+const addToWishlist
 
 
 module.exports = {
