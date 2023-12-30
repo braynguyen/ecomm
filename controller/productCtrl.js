@@ -107,7 +107,16 @@ const getAllProducts = asyncHandler(async (req, res) => {
     }
 });
 
-const addToWishlist
+const addToWishlist = asyncHandler(async (req, res) => {
+    const {_id} = req.user;
+    const {prodId} = req.body;
+    try {
+        const user = User.findById(_id);
+        const alreadyAdded = user.wishlist
+    } catch (err) {
+        throw new Error(err);
+    }
+})
 
 
 module.exports = {

@@ -30,7 +30,8 @@ var userSchema = new mongoose.Schema(
             type: String,
             required: true,
             unique: true,
-            maxlength: 20, // Set the maximum length for the username
+            minlength: 3,
+            maxlength: 20, 
         },
         password:{
             type:String,
@@ -48,6 +49,7 @@ var userSchema = new mongoose.Schema(
             type: Array,
             default: [],
         },
+        group: [{type: mongoose.Schema.Types.ObjectId, ref: "Group"}],
         address: [{type: mongoose.Schema.Types.ObjectId, ref: "Address"}],
         wishlist: [{type: mongoose.Schema.Types.ObjectId, ref: "Product"}],
         refreshToken: {

@@ -1,6 +1,6 @@
-const { generateToken } = require('../config/jwtToken');
-const User = require('../models/userModel');
-const asyncHandler = require('express-async-handler');
+const { generateToken } = require('../config/jwtToken'); // token is if admin or refresh token
+const User = require('../models/userModel'); // User is the schema that is being used
+const asyncHandler = require('express-async-handler'); // for async functions in express
 const validateMongoDbId = require('../utils/validateMongodbid');
 const {generateRefreshToken} = require('../config/refreshToken');
 const jwt = require('jsonwebtoken');
@@ -96,7 +96,6 @@ const logout = asyncHandler(async (req, res) => {
 const updateaUser = asyncHandler(async (req, res) => {
     // console.log(req.user)
     const { id } = req.user;
-    //TODO: verify user
     validateMongoDbId(id);
     try {
         const updatedUser = await User.findByIdAndUpdate(
