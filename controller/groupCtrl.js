@@ -30,8 +30,8 @@ const updateGroup = asyncHandler(async (req, res) => {
     validateMongoDbId(userID);
     const { id: groupID } = req.params;
 
-    console.log('req.user:', req.user);
-    console.log('req.params:', req.params);
+    // console.log('req.user:', req.user);
+    // console.log('req.params:', req.params);
     try {
         if(req.body.name) { //CHANGE THIS SO IT IS BASED OFF TITLE AND USER(?)
             req.body.slug = slugify(req.body.name)
@@ -89,22 +89,51 @@ const getUsersGroups = asyncHandler(async (req, res) => {
 // assumes that the user either clicks a link or hits a button to join a group
 const addUsertoGroup = asyncHandler(async (req, res) => {
     const {id: groupID} = req.params;
-    console.log("group")
     validateMongoDbId(groupID);
     const {id: userID} = req.user;
-    console.log("user")
     validateMongoDbId(userID);
     try {
-        const group = await Group.findById(groupID);
-        const user = await User.findById(userID);
+        const updatedGroup = await Group.findById(groupID);
+        const updatedUser = await User.findById(userID);
         
-        group.users.push(userID);
-        await group.save();
-        user.groups.push(groupID);
-        await user.save();
+        if (updatedGroup.users.indexOf(userID) === -1) {
+            updatedGroup.users.push(userID);
+            //might want to separate
+            updatedUser.groups.push(groupID);
+
+            await updatedGroup.save();
+            await updatedUser.save();
+        }
         res.json({
-            group,
-            user,
+            updatedGroup,
+            updatedUser,
+        })
+    } catch (err) {
+        throw new Error(err);
+    }
+})
+
+const removeUserFromGroup = asyncHandler(async (req, res) => {
+    const {id: groupID} = req.params;
+    validateMongoDbId(groupID);
+    const {id: userID} = req.user;
+    validateMongoDbId(userID);
+    try {
+        console.log("GroupId: " + groupID);
+        console.log("UserID: " + userID);
+
+        const updatedGroup = await Group.findByIdAndUpdate(groupID);
+        updatedGroup.users = updatedGroup.users.filter(user => user.id.toString('hex') !== userID);
+
+        const updatedUser = await User.findByIdAndUpdate(userID);
+        updatedUser.groups = updatedUser.groups.filter(group => group.id.toString('hex') !== groupID);
+
+        await updatedGroup.save();
+        await updatedUser.save();
+
+        res.json({
+            updatedGroup,
+            updatedUser,
         })
     } catch (err) {
         throw new Error(err);
@@ -120,4 +149,5 @@ module.exports = {
     getAllGroups,
     getUsersGroups,
     addUsertoGroup,
+    removeUserFromGroup,
 };
