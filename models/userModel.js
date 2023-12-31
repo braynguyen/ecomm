@@ -49,7 +49,10 @@ var userSchema = new mongoose.Schema(
             type: Array,
             default: [],
         },
-        group: [{type: mongoose.Schema.Types.ObjectId, ref: "Group"}],
+        groups: {
+            type: [{type: mongoose.Schema.Types.ObjectId, ref: "Group"}],
+            default: [],
+        },
         address: [{type: mongoose.Schema.Types.ObjectId, ref: "Address"}],
         wishlist: [{type: mongoose.Schema.Types.ObjectId, ref: "Product"}],
         refreshToken: {

@@ -4,6 +4,7 @@ const asyncHandler = require('express-async-handler');
 
 // checking validity of user
 const groupMiddleware = asyncHandler(async (req, res, next) => {
+    console.log("Middleware")
     let token;
     if (req?.headers?.authorization?.startsWith("Bearer")) {
         token = req.headers.authorization.split(' ')[1];
