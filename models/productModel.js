@@ -47,9 +47,16 @@ var productSchema = new mongoose.Schema({
         // enum: ['Black', 'Brown', 'Red']
         required: true
     },
-    ratings: { //NOT NEEDED MAYBE ON USER?
-        star: Number,
-        postedBy: {type: mongoose.Schema.Types.ObjectId, ref:"User"}, //IMPORTANT
+    ratings: [
+        {
+            star: Number,
+            comment: String,
+            postedBy: {type: mongoose.Schema.Types.ObjectId, ref:"User"}, //IMPORTANT
+        }
+    ],
+    totalrating: {
+        type: String,
+        default: 0,
     }
     //ADD GROUPS??
     //ADD USERID

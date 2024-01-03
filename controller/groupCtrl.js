@@ -113,14 +113,16 @@ const addUsertoGroup = asyncHandler(async (req, res) => {
     }
 })
 
+
+// look at addtowishlist function on productCtrl
 const removeUserFromGroup = asyncHandler(async (req, res) => {
     const {id: groupID} = req.params;
     validateMongoDbId(groupID);
     const {id: userID} = req.user;
     validateMongoDbId(userID);
     try {
-        console.log("GroupId: " + groupID);
-        console.log("UserID: " + userID);
+        // console.log("GroupId: " + groupID);
+        // console.log("UserID: " + userID);
 
         const updatedGroup = await Group.findByIdAndUpdate(groupID);
         updatedGroup.users = updatedGroup.users.filter(user => user.id.toString('hex') !== userID);

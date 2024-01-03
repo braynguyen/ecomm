@@ -1,4 +1,6 @@
 const Product = require("../models/productModel");
+const userModel = require("../models/userModel");
+const User = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 
@@ -111,11 +113,101 @@ const addToWishlist = asyncHandler(async (req, res) => {
     const {_id} = req.user;
     const {prodId} = req.body;
     try {
-        const user = User.findById(_id);
-        const alreadyAdded = user.wishlist
+        const user = await User.findById(_id);
+        const alreadyAdded = await user.wishlist.find((id) => id.toString() === prodId);
+
+        if (alreadyAdded) { // remove if already added
+            let user = await User.findByIdAndUpdate(
+                _id, 
+                {
+                $pull: { wishlist: prodId }, //IMPORTANT
+                },
+                {
+                new: true,
+                }
+            );
+            res.json(user);
+        } else {
+            let user = await User.findByIdAndUpdate(
+                _id,
+                {
+                $push: { wishlist: prodId }, //IMPORTANT
+                },
+                {
+                new: true,
+                }
+            );
+            res.json(user);
+        }
     } catch (err) {
         throw new Error(err);
     }
+});
+
+
+const rating = asyncHandler(async (req, res) => {
+    const { _id } = req.user;
+    const { star, comment, prodId } = req.body;
+    try {
+        const product = await Product.findById(prodId);
+        let alreadyRated = product.ratings.find(
+            (userId) => userId.postedBy.toString() === _id.toString()
+        );
+        if (alreadyRated) {
+            const updatedRating = await Product.updateOne(
+                {
+                    ratings: {$elemMatch: alreadyRated},
+                },
+                {
+                    $set: {"ratings.$.star": star, "ratings.$.comment": comment}
+                },
+                {
+                    new: true
+                }
+            );
+        } else {
+            const ratedProduct = await Product.findByIdAndUpdate(
+                prodId,
+                {
+                    $push: {
+                        ratings: {
+                            star: star,
+                            comment: comment,
+                            postedBy: _id,
+                        },
+                    },
+                },
+                {
+                    new: true,
+                }
+            );
+        }
+
+        //total rating funtionality
+        const getAllRatings = await Product.findById(prodId);
+        let totalRating = getAllRatings.ratings.length; //length
+        let ratingsum = getAllRatings.ratings //sum
+            .map((item) => item.star)
+            .reduce((prev, curr) => prev + curr, 0);
+
+        let actualRating = Math.round(ratingsum/totalRating); // sum/length
+        let finalProduct = await Product.findByIdAndUpdate(
+            prodId,
+            {
+                totalrating: actualRating
+            }, 
+            {
+                new: true
+            }
+        )
+        res.json(finalProduct);
+    } catch (err) {
+        throw new Error(err);
+    }
+});
+
+const uploadImages = asyncHandler(async (req, res) => {
+    console.log(req.files)
 })
 
 
@@ -125,4 +217,7 @@ module.exports = {
     getAllProducts,
     updateProduct,
     deleteProduct,
+    addToWishlist,
+    rating,
+    uploadImages
 };
