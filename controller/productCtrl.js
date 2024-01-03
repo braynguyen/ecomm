@@ -1,6 +1,7 @@
 const Product = require("../models/productModel");
-const userModel = require("../models/userModel");
 const User = require("../models/userModel");
+const cloudinaryUploadImg = require("../utils/cloudinary");
+const validateMongoDbId = require('../utils/validateMongodbid');
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 
@@ -36,7 +37,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 // delete a product
 const deleteProduct = asyncHandler(async (req, res) => {
     const {id} = req.params;
-    console.log(id);
+    // console.log(id);
     try {
         const deletedProduct = await Product.findByIdAndDelete(id);
         res.json(deletedProduct)
@@ -69,7 +70,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
         // regex for greater than and less than
         let queryStr = JSON.stringify(queryObj);
         queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-        console.log(JSON.parse(queryStr));
+        // console.log(JSON.parse(queryStr));
         
         let query = Product.find(JSON.parse(queryStr))
 
@@ -207,7 +208,35 @@ const rating = asyncHandler(async (req, res) => {
 });
 
 const uploadImages = asyncHandler(async (req, res) => {
-    console.log(req.files)
+    const { id } = req.params;
+    console.log(req.files);
+    validateMongoDbId(id);
+    try {
+        const uploader = (path) => cloudinaryUploadImg(path, "images");
+        const urls = [];
+        const files = req.files;
+        for (const file of files) {
+            const {path} = file;
+            console.log(path);
+            const newpath = await uploader(path);
+            console.log(newpath)
+            urls.push(newpath);
+        }
+        const findProduct = await Product.findByIdAndUpdate(
+            id, 
+            {
+                images: urls.map((file) => {
+                    return file;
+                }),
+            },
+            {
+                new: true,
+            }
+        );
+        res.json(findProduct);
+    } catch (err) {
+        throw new Error(err);
+    }
 })
 
 

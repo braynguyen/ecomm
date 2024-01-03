@@ -6,6 +6,8 @@ const {generateRefreshToken} = require('../config/refreshToken');
 const jwt = require('jsonwebtoken');
 const {sendEmail} = require('../controller/emailCtrl')
 const crypto = require('crypto');
+const Product = require('../models/productModel');
+const cloudinaryUploadImg = require('../utils/cloudinary');
 
 // Create a user
 const createUser = asyncHandler(async (req, res) => {
@@ -255,6 +257,41 @@ const resetPassword = asyncHandler(async (req, res) => {
     res.json(user);
 })
 
+
+
+// CHANGE TO ONE PICTURE
+const uploadpfp = asyncHandler(async (req, res) => { 
+    const { id } = req.params;
+    // console.log(req.files);
+    validateMongoDbId(id);
+    try {
+        const uploader = (path) => cloudinaryUploadImg(path, "images");
+        const urls = [];
+        const files = req.files;
+        for (const file of files) {
+            const {path} = file;
+            // console.log(path);
+            const newpath = await uploader(path);
+            // console.log(newpath)
+            urls.push(newpath);
+        }
+        const findProduct = await Product.findByIdAndUpdate(
+            id, 
+            {
+                images: urls.map((file) => {
+                    return file;
+                }),
+            },
+            {
+                new: true,
+            }
+        );
+        res.json(findProduct);
+    } catch (err) {
+        throw new Error(err);
+    }
+})
+
 module.exports = {
     createUser, 
     loginUserCtrl, 
@@ -269,4 +306,5 @@ module.exports = {
     updatePassword,
     forgotPasswordToken,
     resetPassword,
+    uploadpfp,
 };
