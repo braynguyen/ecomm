@@ -1,9 +1,12 @@
 const Product = require("../models/productModel");
 const User = require("../models/userModel");
-const cloudinaryUploadImg = require("../utils/cloudinary");
-const validateMongoDbId = require('../utils/validateMongodbid');
-const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
+const fs = require('fs')
+const asyncHandler = require("express-async-handler");
+
+
+const validateMongoDbId = require('../utils/validateMongodbid');
+const cloudinaryUploadImg = require("../utils/cloudinary");
 
 // create a product
 const createProduct = asyncHandler(async (req, res) => {
@@ -209,7 +212,7 @@ const rating = asyncHandler(async (req, res) => {
 
 const uploadImages = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    console.log(req.files);
+    // console.log(req.files);
     validateMongoDbId(id);
     try {
         const uploader = (path) => cloudinaryUploadImg(path, "images");
@@ -217,11 +220,13 @@ const uploadImages = asyncHandler(async (req, res) => {
         const files = req.files;
         for (const file of files) {
             const {path} = file;
-            console.log(path);
+            // console.log(path);
             const newpath = await uploader(path);
-            console.log(newpath)
+            // console.log(newpath)
             urls.push(newpath);
+            fs.unlinkSync(path);
         }
+        // putting all images in the product database
         const findProduct = await Product.findByIdAndUpdate(
             id, 
             {

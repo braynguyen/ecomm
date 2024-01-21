@@ -58,6 +58,9 @@ var userSchema = new mongoose.Schema(
         refreshToken: {
             type: String
         },
+        profilePicture: {
+            url: String,
+        },
         passwordChangedAt: Date,
         passwordResetToken: String,
         PasswordResetExpires: Date,

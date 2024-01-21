@@ -8,6 +8,7 @@ const {sendEmail} = require('../controller/emailCtrl')
 const crypto = require('crypto');
 const Product = require('../models/productModel');
 const cloudinaryUploadImg = require('../utils/cloudinary');
+const fs = require('fs');
 
 // Create a user
 const createUser = asyncHandler(async (req, res) => {
@@ -46,6 +47,35 @@ const loginUserCtrl = asyncHandler(async( req, res ) => {
             email: findUser?.email,
             mobile: findUser?.mobile,
             token: generateToken(findUser?._id),
+        });
+    } else {
+        throw new Error("Invalid Credentials");
+    }
+});
+
+
+//admin login
+const loginAdmin = asyncHandler(async( req, res ) => {
+    const {email, password} = req.body;
+    // check if user exists or not
+    const findAdmin = await User.findOne({ email });
+    if (findAdmin.role !== 'admin') throw new Error("Not Authorized");
+    if (findAdmin && await findAdmin.isPasswordMatched(password)) {
+        // cookies so people stay logged in on refresh
+        const refreshToken = await generateRefreshToken(findAdmin?._id);
+        const updateAdmin = await User.findOneAndUpdate(findAdmin?._id, {refreshToken: refreshToken}, {new: true});
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 72*60*60*1000 //3 days in milliseconds
+        });
+
+        res.json({
+            id: findAdmin?._id,
+            firstName: findAdmin?.firstName,
+            lastName: findAdmin?.lastName,
+            email: findAdmin?.email,
+            mobile: findAdmin?.mobile,
+            token: generateToken(findAdmin?._id),
         });
     } else {
         throw new Error("Invalid Credentials");
@@ -266,27 +296,24 @@ const uploadpfp = asyncHandler(async (req, res) => {
     validateMongoDbId(id);
     try {
         const uploader = (path) => cloudinaryUploadImg(path, "images");
-        const urls = [];
+
         const files = req.files;
-        for (const file of files) {
-            const {path} = file;
-            // console.log(path);
-            const newpath = await uploader(path);
-            // console.log(newpath)
-            urls.push(newpath);
-        }
-        const findProduct = await Product.findByIdAndUpdate(
+        const {path} = files[0];
+        // console.log(path);
+        const newpath = await uploader(path);
+        // console.log(newpath)
+        const url = newpath;
+        fs.unlinkSync(path);
+        const findUser = await User.findByIdAndUpdate(
             id, 
             {
-                images: urls.map((file) => {
-                    return file;
-                }),
+                profilePicture: url
             },
             {
                 new: true,
             }
         );
-        res.json(findProduct);
+        res.json(findUser);
     } catch (err) {
         throw new Error(err);
     }
@@ -295,6 +322,7 @@ const uploadpfp = asyncHandler(async (req, res) => {
 module.exports = {
     createUser, 
     loginUserCtrl, 
+    loginAdmin,
     getAllUsers, 
     getaUser, 
     deleteaUser, 
