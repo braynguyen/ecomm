@@ -125,30 +125,49 @@ const logout = asyncHandler(async (req, res) => {
 
 
 // update a single user
-const updateaUser = asyncHandler(async (req, res) => {
+const updateaUser = asyncHandler(async (req, res, next) => {
     // console.log(req.user)
-    const { id } = req.user;
-    validateMongoDbId(id);
+    const { _id } = req.user;
+    validateMongoDbId(_id);
     try {
         const updatedUser = await User.findByIdAndUpdate(
-            id,
-             {
-            firstName: req?.body?.firstName,
-            lastName: req?.body?.lastName,
-            email: req?.body?.email,
-            mobile: req?.body?.mobile
+            _id,
+            {
+                firstName: req?.body?.firstName,
+                lastName: req?.body?.lastName,
+                email: req?.body?.email,
+                mobile: req?.body?.mobile
             }, 
             {
-            new: true,
+                new: true,
             }
         );
-        res.json({
-            updatedUser,
-        })
+        res.json(updatedUser)
     } catch (err) {
         throw new Error(err);
     }
-})
+});
+
+const saveAddress = asyncHandler(async (req,res) => {
+    console.log("Please")
+    const { _id } = req.user;
+    console.log("req.user: " + _id)
+    // validateMongoDbId(_id);
+    try {
+        const updatedUser = await User.findByIdAndUpdate(
+            _id,
+            {
+                address: req?.body?.address
+            }, 
+            {
+                new: true,
+            }
+        );
+        res.json(updatedUser)
+    } catch (err) {
+        throw new Error(err);
+    }
+});
 
 
 // Get all users
@@ -317,6 +336,17 @@ const uploadpfp = asyncHandler(async (req, res) => {
     } catch (err) {
         throw new Error(err);
     }
+});
+
+const getWishlist = asyncHandler(async(req, res) => {
+    const {_id} = req.user;
+    validateMongoDbId(id);
+    try {
+        const findUser = await User.findById(_id).populate("wishlist");
+        res.json(findUser);
+    } catch (err) {
+        throw new Error(err);
+    }
 })
 
 module.exports = {
@@ -335,4 +365,6 @@ module.exports = {
     forgotPasswordToken,
     resetPassword,
     uploadpfp,
+    getWishlist,
+    saveAddress,
 };
