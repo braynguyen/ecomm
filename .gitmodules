@@ -1,0 +1,3 @@
+[submodule "rentalFrontend"]
+	path = rentalFrontend
+	url = https://github.com/braynguyen/rentalFrontend.git
