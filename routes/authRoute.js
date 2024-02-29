@@ -33,7 +33,7 @@ router.get("/all-users", getAllUsers);
 router.get("/refresh", handleRefreshToken);
 router.get("/logout", logout);
 router.get("/wishlist", authMiddleware, getWishlist);
-router.get("/:id", authMiddleware, isAdmin, getaUser);
+router.get("/:id", authMiddleware, getaUser);
 
 router.delete("/:id", deleteaUser);
 router.put("/save-address", authMiddleware, saveAddress);
